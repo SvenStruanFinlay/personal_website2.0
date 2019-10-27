@@ -1,25 +1,49 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <title>Sven Struan Finlay</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <style>
-      [v-cloak]{
+
+<head>
+  <meta charset="utf-8">
+  <title>Sven Struan Finlay</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <style>
+    [v-cloak]{
         display: none;
       }
     </style>
-  </head>
+</head>
 
-  <body>
-    <div id="app">
-        <div class="container">
+<body>
+  <div id="app">
+    <div class="container">
+      <div class="card mt-5">
+        <h2 class="card-header">Near earth objects</h2>
+        <table class="table">
+          <thead class="thead-light">
+            <th>#</th>
+            <th>Name</th>
+            <th>Close approch date</th>
+            <th>Miss Distance</th>
+          </thead>
+          <tbody v-cloak>
+            <tr v-for=" (a, index) in astroids">
+              <td>{{index + 1}}</td>
+              <td>{{a.name}}</td>
+              <td>{{getCloseApprochDate(a)}}</td>
+              <td>
+                <ul v-if="a.close_approach_data.length > 0">
+                  <li v-for="(value, key)  in a.close_approach_data[0].miss_distance ">
+                    {{key}}: {{value}}
+                  </li>
+                </ul>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- <img :src="ImgSrc" :title="ImgTitle"> -->
 
 
-          <img :src="ImgSrc" :title="ImgTitle">
-
-
-          <!-- <form v-if="!submitted" class="mt-5" >
+      <!-- <form v-if="!submitted" class="mt-5" >
               <div class="form-group">
                 <label for="email">Email</label>
                 <input type="email" v-model="email" class="form-control form-control-lg">
@@ -27,40 +51,40 @@
               <button type="submit"  @click.prevent="proccess" class="btn btn-primary"name="button">Submit</button>
           </form> -->
 
-          <!-- <h2 v-else v-cloak class="mt-5"> Thank you for submitting!</h2> -->
-        </div>
+      <!-- <h2 v-else v-cloak class="mt-5"> Thank you for submitting!</h2> -->
     </div>
-  </body>
+  </div>
+</body>
 
-  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-  <script type="text/javascript">
-
-
-
-
-    var vm = new Vue({
-      el: "#app",
-      data: {
-        ImgSrc: '',
-        ImgTitle: ''
-      },
-      created: function(){
-        this.fetchApod();
-      },
-      methods: {
-        fetchApod: function() {
-          var api_key = "Esk0fHcyLULXFU3jNklBhhpk2tvQceoA9DLiE3QZ";
-          var url = "https://api.nasa.gov/planetary/apod?api_key=" +api_key;
-          axios.get(url)
-            .then(function(res){
-              vm.ImgSrc = res.data.url;
-              vm.ImgTitle = res.data.title;
-            })
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script type="text/javascript">
+  var vm = new Vue({
+    el: "#app",
+    data: {
+      astroids: []
+    },
+    created: function() {
+      this.fetchAstroids();
+    },
+    methods: {
+      getCloseApprochDate: function(a) {
+        if (a.close_approach_data.length > 0) {
+          return a.close_approach_data[0].close_approach_date;
         }
+        return "N/A";
+      },
+
+      fetchAstroids: function() {
+        var api_key = "Esk0fHcyLULXFU3jNklBhhpk2tvQceoA9DLiE3QZ";
+        var url = "https://api.nasa.gov/neo/rest/v1/neo/browse?api_key=" + api_key;
+        axios.get(url)
+          .then(function(res) {
+            vm.astroids = res.data.near_earth_objects.slice(0, 10);
+          })
       }
-    });
+    }
+  });
+</script>
 
-
-  </script>
 </html>
