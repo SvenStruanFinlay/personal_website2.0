@@ -11,7 +11,26 @@
       }
 
     .highlight {
+      border: 'solid 3px red',
+      color: "red"
+    }
 
+    .shooting-star-leave-to, .shooting-star-enter{
+      transform: translateX(150px) rotate(30deg);
+      opacity: 0;
+    }
+
+    .shooting-star-enter-active, .shooting-star-leave-active{
+      transition: all .5s ease;
+    }
+
+    .neo-list-leave-to, .neo-list-enter{
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    .neo-lZist-enter-active, .neo-list-leave-active {
+      transition: all 1s linear;
     }
     </style>
 </head>
@@ -21,9 +40,15 @@
     <div class="container">
       <div class="card mt-5">
         <h2 class="card-header">Near earth objects</h2>
-        <div class="m-3" v-cloak v-if="numAstroids > 0">
-          <p>showing {{numAstroids}} items</p>
-          <p>{{closestObject}} has the shortest miss distance</p>
+        <transition name="shooting-star">
+          <div class="m-3" v-cloak v-if="numAstroids > 0 && showSummary">
+            <p>showing {{numAstroids}} items</p>
+            <p>{{closestObject}} has the shortest miss distance</p>
+          </div>
+        </transition>
+        <div class="m-3">
+          <a href="#" @click="showSummary = !showSummary"> show/hide summary</a>
+
         </div>
         <table class="table">
           <thead class="thead-light">
@@ -33,8 +58,8 @@
             <th>Miss Distance</th>
             <th>Remove</th>
           </thead>
-          <tbody v-cloak>
-            <tr v-for=" (a, index) in astroids" :key="a.neo_referece_id" :style="[getRowStyle(a), {'color':'blue'}]" style="color:green">
+          <transition-group v-cloak tag="tbody" name="neo-list">
+            <tr v-for=" (a, index) in astroids" :key="a.neo_referece_id" style="color:black">
               <td>{{index + 1}}</td>
               <td>{{a.name}}</td>
               <td>{{getCloseApprochDate(a)}}</td>
@@ -49,7 +74,7 @@
                 <button @click="remove(index)" class="btn btn-warning">remove</button>
               </td>
             </tr>
-          </tbody>
+          </transition-group>
         </table>
       </div>
       <!-- <img :src="ImgSrc" :title="ImgTitle"> -->
@@ -74,7 +99,8 @@
   var vm = new Vue({
     el: "#app",
     data: {
-      astroids: []
+      astroids: [],
+      showSummary: true
     },
     computed: {
       numAstroids: function() {
@@ -103,14 +129,6 @@
       this.fetchAstroids();
     },
     methods: {
-      getRowStyle: function(a) {
-        if (a.close_approach_data.length == 0) {
-          return {
-            border: 'solid 3px red',
-            color: "red"
-          };
-        }
-      },
 
       getCloseApprochDate: function(a) {
         if (a.close_approach_data.length > 0) {
